@@ -5,6 +5,8 @@ import static com.buzzmonitor.facebook.analyze.util.Constants.GRAPH_API_BASE_URL
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -22,6 +24,8 @@ import com.buzzmonitor.facebook.analyze.dto.ListDTO;
 import com.buzzmonitor.facebook.analyze.dto.response.PostDTO;
 import com.buzzmonitor.facebook.analyze.model.Post;
 import com.buzzmonitor.facebook.analyze.repository.PostRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Service to handle Facebook datas from Graph API
@@ -40,6 +44,8 @@ public class FacebookAnalyzeService {
 	private RestTemplate restTemplate;
 	@Autowired
 	private PostRepository postRepository;
+	@Autowired
+	private ObjectMapper objectMapper;
 
 	/**
 	 * Consume the page posts according to with parameter lastDays and save them
@@ -96,11 +102,22 @@ public class FacebookAnalyzeService {
 	 *            - data until interval in yyyyMMdd format. ex. 20171231
 	 * @return Post list
 	 */
-	public List<PostDTO> getPosts(String sinceData, String untilData) {
-		LocalDate since = LocalDate.parse(sinceData, DateTimeFormatter.ofPattern(DATA_FORMAT_DEFAULT));
-		LocalDate until = LocalDate.parse(untilData, DateTimeFormatter.ofPattern(DATA_FORMAT_DEFAULT));
+	public String getPosts(String sinceData, String untilData) {
+		OffsetDateTime since = OffsetDateTime.of(
+				LocalDate.parse(sinceData, DateTimeFormatter.ofPattern(DATA_FORMAT_DEFAULT)), LocalTime.MIN,
+				OffsetDateTime.now().getOffset());
+		OffsetDateTime until = OffsetDateTime.of(
+				LocalDate.parse(untilData, DateTimeFormatter.ofPattern(DATA_FORMAT_DEFAULT)), LocalTime.MAX,
+				OffsetDateTime.now().getOffset());
 		//
-		return null;
+		List<Post> posts = this.postRepository.findAllBySinceDataAndUntilData(since, until);
+		try {
+			return objectMapper.writeValueAsString(posts);
+		} catch (JsonProcessingException e) {
+			return null;
+		} finally {
+
+		}
 	}
 
 }

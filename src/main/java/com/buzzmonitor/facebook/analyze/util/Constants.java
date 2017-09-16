@@ -4,6 +4,6 @@ public class Constants {
 
 	private static final String GRAPH_API_VERSION = "v2.10";
 	public static final String GRAPH_API_BASE_URL = "https://graph.facebook.com/" + GRAPH_API_VERSION;
-	public static final String ACCESS_TOKEN = "EAACEdEose0cBADwjeFFpwmM0zqmyfDGm8qwpg84TQx1ueE07bZBfhmZC5MY2nYeOhUwIXMZAxM1zrpLNMZCpZC6NFFeCVVszWfJWR5TZB1sDhMqV2SiYMEg01PCdfK5LUUsGCJLQGDh7ESkiipykZC7qd8fOuTkSOoUEhxKjEHSuqCowZBy9fM5502avG7z8hZCDT3j24lUCPNjvv4zhIdORJzlvxocxGE6wZD";
+	public static final String ACCESS_TOKEN = "EAACEdEose0cBAEejU9xP1AZAH9bGiSGtibUARida2UdFZANW3JAP2iHIGaeW52ZBzm3zNOgXW7aZAPHsKq87ZBXKLeZAHrU3eCafAnTcw2xwUCq2L7AU3yrBuYZBWC6CXQjCzt6e71ZCkpupqO4uTfl8L7g9bZADr0uDZAcNQAHuxzIQsWU4Qct2Mz44RTt9OfoxtTJCzxxqBXE6xv5iSsFLVN9EncCY7ySwIZD";
 
 }

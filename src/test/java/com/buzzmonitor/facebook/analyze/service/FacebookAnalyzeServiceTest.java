@@ -18,7 +18,12 @@ public class FacebookAnalyzeServiceTest {
 	}
 
 	@Test
-	public void responseSuccessfull() {
-		this.service.consumePosts(3, "998036520310119");
+	public void consumePostsSuccessful() {
+		this.service.consumePosts(1400, "998036520310119");
+	}
+
+	@Test
+	public void getPostsBetweenDatesSucessful() {
+		System.out.println(this.service.getPosts("20170101", "20171231"));
 	}
 }

@@ -2,6 +2,7 @@ package com.buzzmonitor.facebook.analyze.model;
 
 import java.time.OffsetDateTime;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -17,6 +18,7 @@ public class Post {
 	@Id
 	private String id;
 	private OffsetDateTime createdTime;
+	@Column(columnDefinition = "text")
 	private String message;
 
 	public String getId() {
