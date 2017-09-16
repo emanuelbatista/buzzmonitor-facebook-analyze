@@ -1,15 +1,17 @@
 package com.buzzmonitor.facebook.analyze.dto;
 
+import java.util.List;
+
 public class ListDTO<T> {
 
-	private T data;
+	private List<T> data;
 	private Page paging;
 
-	public T getData() {
+	public List<T> getData() {
 		return data;
 	}
 
-	public void setData(T data) {
+	public void setData(List<T> data) {
 		this.data = data;
 	}
 

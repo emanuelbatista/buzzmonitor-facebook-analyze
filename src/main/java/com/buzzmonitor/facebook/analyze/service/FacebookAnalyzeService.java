@@ -6,13 +6,22 @@ import static com.buzzmonitor.facebook.analyze.util.Constants.GRAPH_API_BASE_URL
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.buzzmonitor.facebook.analyze.dto.ListDTO;
-import com.buzzmonitor.facebook.analyze.factory.RestTemplateDefault;
+import com.buzzmonitor.facebook.analyze.dto.response.PostDTO;
 import com.buzzmonitor.facebook.analyze.model.Post;
+import com.buzzmonitor.facebook.analyze.repository.PostRepository;
 
 /**
  * Service to handle Facebook datas from Graph API
@@ -20,35 +29,78 @@ import com.buzzmonitor.facebook.analyze.model.Post;
  * @author emanuel
  *
  */
+@Service
 public class FacebookAnalyzeService {
 
 	private static final String TIME_ZONE_DEFAULT = "+0000";
 	private static final int AMOUNT_LIMIT_PAGE = 100;
+	private static final String DATA_FORMAT_DEFAULT = "yyyyMMdd";
 
+	@Autowired
 	private RestTemplate restTemplate;
+	@Autowired
+	private PostRepository postRepository;
 
-	public FacebookAnalyzeService() {
-		super();
-		this.restTemplate = RestTemplateDefault.getInstance();
-	}
-
-	public int consumerPosts(int lastDays, String page) {
-		LocalDateTime date = LocalDate.now().atStartOfDay();
+	/**
+	 * Consume the page posts according to with parameter lastDays and save them
+	 * in a base data.
+	 * 
+	 * @param lastDays
+	 *            - amount days previous
+	 * @param page
+	 *            - ID or name page to get the posts
+	 * @return amount posts got.
+	 */
+	public int consumePosts(int lastDays, String page) {
+		LocalDateTime date = LocalDate.now(ZoneOffset.of(TIME_ZONE_DEFAULT)).atStartOfDay();
 		LocalDateTime dateLastDays = date.minusDays(lastDays);
 		long milliSecounds = dateLastDays.toInstant(ZoneOffset.of(TIME_ZONE_DEFAULT)).getEpochSecond();
-		ListDTO<List<Post>> listDTO = this.restTemplate.getForObject(
+
+		ResponseEntity<ListDTO<PostDTO>> responseEntity = this.restTemplate.exchange(
 				GRAPH_API_BASE_URL + "/{page}/posts?limit={limit}&since={since}&access_token={access_token}",
-				ListDTO.class, page, AMOUNT_LIMIT_PAGE, (int) milliSecounds, ACCESS_TOKEN);
+				HttpMethod.GET, null, new ParameterizedTypeReference<ListDTO<PostDTO>>() {
+				}, page, AMOUNT_LIMIT_PAGE, (int) milliSecounds, ACCESS_TOKEN);
+
+		ListDTO<PostDTO> listDTO = responseEntity.getBody();
 		int count = 0;
 		boolean hasNext = false;
 		do {
-			List<Post> posts = listDTO.getData();
-			count += posts.size();
+			List<PostDTO> postsDTO = listDTO.getData();
+
+			List<Post> posts = postsDTO.stream().map(postDTO -> {
+				Post post = new Post();
+				BeanUtils.copyProperties(postDTO, post);
+				return post;
+			}).collect(Collectors.toList());
+
+			this.postRepository.save(posts);
+
+			count += postsDTO.size();
 			if (hasNext = (listDTO.getPaging() != null && listDTO.getPaging().getNext() != null)) {
-				listDTO = this.restTemplate.getForObject(listDTO.getPaging().getNext(), ListDTO.class);
+				responseEntity = this.restTemplate.exchange(listDTO.getPaging().getNext(), HttpMethod.GET, null,
+						new ParameterizedTypeReference<ListDTO<PostDTO>>() {
+						}, page, AMOUNT_LIMIT_PAGE, (int) milliSecounds, ACCESS_TOKEN);
+
+				listDTO = responseEntity.getBody();
 			}
 		} while (hasNext);
 		return count;
+	}
+
+	/**
+	 * it get all posts save in base data
+	 * 
+	 * @param sinceData
+	 *            - data since interval in yyyyMMdd format. ex. 20170101
+	 * @param untilData
+	 *            - data until interval in yyyyMMdd format. ex. 20171231
+	 * @return Post list
+	 */
+	public List<PostDTO> getPosts(String sinceData, String untilData) {
+		LocalDate since = LocalDate.parse(sinceData, DateTimeFormatter.ofPattern(DATA_FORMAT_DEFAULT));
+		LocalDate until = LocalDate.parse(untilData, DateTimeFormatter.ofPattern(DATA_FORMAT_DEFAULT));
+		//
+		return null;
 	}
 
 }

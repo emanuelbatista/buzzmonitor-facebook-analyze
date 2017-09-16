@@ -1,23 +1,19 @@
-package com.buzzmonitor.facebook.analyze.model;
+package com.buzzmonitor.facebook.analyze.dto.response;
 
 import java.time.OffsetDateTime;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * Entity Post - Represent the data Post from Facebook
- * 
- * @author emanuel
- *
- */
-@Entity
-public class Post {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class PostDTO {
 
-	@Id
+	@JsonProperty(required = true)
 	private String id;
+	@JsonProperty(value = "created_time", required = true)
 	private OffsetDateTime createdTime;
 	private String message;
+	private String story;
 
 	public String getId() {
 		return id;
@@ -43,9 +39,12 @@ public class Post {
 		this.message = message;
 	}
 
-	@Override
-	public String toString() {
-		return "Post [id=" + id + ", createdTime=" + createdTime + ", message=" + message + "]";
+	public String getStory() {
+		return story;
+	}
+
+	public void setStory(String story) {
+		this.story = story;
 	}
 
 }
