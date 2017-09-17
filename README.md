@@ -9,7 +9,7 @@ A little project to facebook analyze from [Graph API](https://graph.facebook.com
 
 ## Configuration to execute
 
-> You must put a token access in class `com.buzzmonitor.facebook.analyze.util.Constants` on field `ACCESS_TOKEN` to can the posts from Graph API.
+> You must put a token access in class `com.buzzmonitor.facebook.analyze.util.Constants` on field `ACCESS_TOKEN` to can get the posts from Graph API.
 
 ## Tests
 
